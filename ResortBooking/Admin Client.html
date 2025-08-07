@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Admin Tour Management</title>
+  <script>
+    async function viewReservations() {
+      const tourId = document.getElementById('admin-tour-id').value;
+
+      try {
+        // Ensure the URL is fully qualified
+        const response = await fetch(`http://localhost:8080/api/reservations/${tourId}`);
+        if (!response.ok) throw new Error("Failed to fetch reservations.");
+
+        const reservations = await response.json();
+
+        const reservationList = document.getElementById('reservation-list');
+        if (reservations.length > 0) {
+          reservationList.innerHTML = reservations.map(
+                  res => `<li>Booking Reference: ${res.reference} - ${res.name}</li>`
+          ).join('');
+        } else {
+          reservationList.innerHTML = '<li>No reservations for this tour.</li>';
+        }
+      } catch (error) {
+        console.error(error); // Log error for debugging
+        alert("Error: Unable to fetch reservations.");
+      }
+    }
+    async function listTours() {
+      try {
+        const response = await fetch('http://localhost:8080/api/tours');
+        if (!response.ok) throw new Error("Failed to fetch tours.");
+        const tours = await response.json();
+        const tourList = document.getElementById('tour-list');
+        tourList.innerHTML = tours.map(
+                tour => `<li>${tour.id}: ${tour.description} on ${tour.date} - $${tour.cost} (${tour.reserved}/${tour.places} reserved)</li>`
+        ).join('');
+      } catch (error) {
+        alert("Service Unavailable: Unable to fetch tours.");
+      }
+    }
+    async function createTour() {
+      const id = document.getElementById('create-id').value;
+      const description = document.getElementById('create-description').value;
+      const date = document.getElementById('create-date').value;
+      const cost = document.getElementById('create-cost').value;
+      const places = document.getElementById('create-places').value;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/tours?id=${id}&description=${description}&date=${date}&cost=${cost}&places=${places}`, {
+          method: 'POST',
+        });
+        const message = await response.text();
+        alert(message);
+      } catch (error) {
+        console.error(error);
+        alert("Error: Unable to create tour.");
+      }
+    }
+
+    async function updateTour() {
+      const id = document.getElementById('update-id').value;
+      const description = document.getElementById('update-description').value;
+      const date = document.getElementById('update-date').value;
+      const cost = document.getElementById('update-cost').value;
+      const places = document.getElementById('update-places').value;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/tours/${id}?description=${description}&date=${date}&cost=${cost}&places=${places}`, {
+          method: 'PUT',
+        });
+        const message = await response.text();
+        alert(message);
+      } catch (error) {
+        alert("Error: Unable to update tour.");
+      }
+    }
+
+    async function deleteTour() {
+      const id = document.getElementById('delete-id').value;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/tours/${id}`, {
+          method: 'DELETE',
+        });
+        const message = await response.text();
+        alert(message);
+      } catch (error) {
+        alert("Error: Unable to delete tour.");
+      }
+    }
+
+    async function validateReservations() {
+      const tourId = document.getElementById('validate-tour-id').value;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/validate/${tourId}`, {
+          method: 'POST',
+        });
+        const message = await response.text();
+        alert(message);
+      } catch (error) {
+        alert("Error: Unable to validate reservations.");
+      }
+    }
+
+    async function finalizeReservations() {
+      const tourId = document.getElementById('finalize-tour-id').value;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/finalize/${tourId}`, {
+          method: 'POST',
+        });
+        const message = await response.text();
+        alert(message);
+      } catch (error) {
+        alert("Error: Unable to finalize reservations.");
+      }
+    }
+  </script>
+</head>
+<body>
+<h1>Admin Tour Management</h1>
+<h2>View Reservations for a Tour</h2>
+<input id="admin-tour-id" placeholder="Tour ID" type="number" />
+<button onclick="viewReservations()">View Reservations</button>
+<ul id="reservation-list"></ul>
+<button onclick="listTours()">List All Tours</button>
+<ul id="tour-list"></ul>
+
+<h2>Create Tour</h2>
+<input id="create-id" placeholder="Tour ID" type="number" />
+<input id="create-description" placeholder="Description" />
+<input id="create-date" placeholder="Date (YYYY-MM-DD)" />
+<input id="create-cost" placeholder="Cost" type="number" />
+<input id="create-places" placeholder="Places" type="number" />
+<button onclick="createTour()">Create Tour</button>
+
+<h2>Update Tour</h2>
+<input id="update-id" placeholder="Tour ID" type="number" />
+<input id="update-description" placeholder="Description" />
+<input id="update-date" placeholder="Date (YYYY-MM-DD)" />
+<input id="update-cost" placeholder="Cost" type="number" />
+<input id="update-places" placeholder="Places" type="number" />
+<button onclick="updateTour()">Update Tour</button>
+
+<h2>Delete Tour</h2>
+<input id="delete-id" placeholder="Tour ID" type="number" />
+<button onclick="deleteTour()">Delete Tour</button>
+
+<h2>Validate Reservations</h2>
+<input id="validate-tour-id" placeholder="Tour ID" type="number" />
+<button onclick="validateReservations()">NON FUNCTIONAL: Validate Reservations</button>
+
+<h2>Finalize Reservations</h2>
+<input id="finalize-tour-id" placeholder="Tour ID" type="number" />
+<button onclick="finalizeReservations()">NON FUNCTIONAL: Finalize Reservations</button>
+</body>
+</html>
